@@ -1,4 +1,4 @@
 # pseudoSpec
-Prototyping code for pseudo-MS (in-source fragmention) and pseudo-MS/MS (all ion fragmentation) mass spectra
+Prototyping code for pseudo-MS (in-source fragmention) and pseudo-MS/MS (all ion fragmentation) mass spectra:
 
-In-source fragments demo [http://htmlpreview.github.io/?https://github.com/gggraca/pseudoSpec/blob/main/ISF.html]
+[In-source fragments using MSnbase step-by-step](http://htmlpreview.github.io/?https://github.com/gggraca/pseudoSpec/blob/main/ISF.html)
