@@ -1,0 +1,124 @@
+---
+title: "In-source fragment spectra"
+author: "Goncalo Graca"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Obtain the in-source fragment spectrum of a feature of interest
+
+This document summarises an approach to obtaining the in-source fragment (isf) spectrum for a feature of interest. The code uses MSnbase functionality, which increases the speed of the process compared with approaches using xcms for peak-picking (e.g. MetaboAnnotatoR and 'correlate' script from Matt Lewis). It also adds spectra comparison capability.
+
+The data used for illustrative purposes was published with the MetaboAnnotatoR paper, and is a truncated Lipid Positive dataset from the MESA Phase 2 cohort (AIF data). 
+```{r packages_and_data, warning=FALSE, message=FALSE}
+library(MSnbase)
+library(ggplot2)
+rawData <- readMSData('Lipid_Positive_QC.mzML', mode='onDisk', centroided. = TRUE)
+```
+
+Filter MS1 spectra. This is important particularly when the data has more than one type of scans, which is the case.
+```{r ms1}
+msFilteredData <- filterMsLevel(rawData, msLevel = 1)
+```
+
+Read the retention times of the filtered MS1 scans.
+```{r rt}
+RTs <- rtime(msFilteredData)
+```
+
+Extract the EIC for the feature of interest (585.2691 m/z and 72.8 s) and locate its apex.
+The retention time window here is set to approximately +/- 20 s, but more accurate values could be obtained from the peakPantheR ROIs.
+Same applies to the mz values, which here an interval of +/- 0.01 was considered.
+```{r feature_eic, warning=FALSE}
+scans <- which(RTs >= 60 & RTs <= 90) # scans corresponding to the feature of interest
+
+rtFilteredData <- msFilteredData[scans] # only scans at the RTs of interest
+
+spectraData <- spectra(rtFilteredData) # spectra for corresponding to the scans of interest 
+
+feic <- filterMz(rtFilteredData, mz = c(585.2591, 585.2791)) # EIC object
+
+fint <- as.numeric(intensity(feic)) # intensity for the EIC
+
+frt <- rtime(feic)
+
+apex <- which.max(fint) # apex for the EIC
+
+plot(frt, fint, type = "b", pch = 19, xlab = "Retention time (s)", ylab = "Intensity (a.u.)", main = "585.2691 m/z, 72.8s")
+abline(v = frt[apex], col = "red", lty = 3)
+```
+
+Gather the m/z and intensity values for the spectrum corresponding to the apex of the EIC of the feature of interest. The most intense features can be used, for instance above 10000 of intensity.
+```{r feature_spectrum, warning=FALSE}
+apexSpec <- data.frame(mz = mz(spectraData[[apex]]), intensity = intensity(spectraData[[apex]])) # spectrum to get ISFs from
+idx <- which(apexSpec$intensity > 10000)
+mzSelected <- apexSpec$mz[idx]
+# plot spectrum with RT threshold
+plot(apexSpec[,1],apexSpec[,2], type = "h", xlab = "m/z", ylab = "Intensity", main = paste("Retention time", frt[apex], "s"))
+abline(h = 10000, col = "red", lty = 3)
+```
+
+Generate the EICs for the selected peaks. 
+```{r EIC_other_features, warning=FALSE, message=FALSE}
+# function to get all EICs for the selected peaks from the apex spectrum
+# mz tolerance set to 0.01
+getEIC <- function(mz, rtFilteredData, tol = 0.01){
+  eic <- filterMz(rtFilteredData, mz = c(mz-tol, mz+tol))
+  rt <- as.numeric(rtime(eic))
+  int <- intensity(eic)
+  tmp <- lapply(int, function(x) which(length(x) > 1 | length(x) == 0))
+  idx <- which(tmp == 1)
+  idx <- as.numeric(idx)
+  int[idx] <- NA
+  int <- unlist(int)
+  df <- data.frame(rt =rt, intensity = int)
+  return(df)
+}
+
+r <- lapply(mzSelected, function(x) getEIC(x, rtFilteredData, tol = 0.01))
+```
+
+Plot the overlap between EICs
+```{r compare_EICs, warning=FALSE}
+for(i in 1:length(mzSelected)){
+  r[[i]][,"mz"] <- round(mzSelected[i], 4)
+}
+df <- do.call(rbind,r)
+df <- rbind(data.frame(rt = frt, intensity = fint, mz = 585.2691),df)
+ggplot(df, aes(rt, intensity, col = factor(mz))) + geom_line() +
+  labs(title = "Overlap between 585.2691 m/z and co-eluting features", x = "Retention time (s)", y = "Intensity (a.u.)", fill = "m/z")
+```
+
+Obtain the in-source fragment pseudo-spectrum from the EICs of the features that best correlate with the EIC of the feature of interest (C > 0.95):
+```{r isf_spectrum}
+# correlate the feature EIC with the other features EICs
+c <- lapply(r, function(x) cor(fint, x[,2], use = "pairwise.complete.obs"))
+c <- unlist(c)
+
+# select features with the highest correlation coefficient
+isf <- mzSelected[which(c > 0.95)]
+
+# obtain the pseudo-in source fragment (ISF) spectrum
+idx <- sapply(isf, function(x) grep(x, apexSpec$mz))
+isfSpec <- apexSpec[idx,]
+```
+
+Compare the in-source fragment pseudo-spectrum with the apex spectrum: 
+```{r comparison}
+# convert the feature and the ISF spectra into "Spectrum1" class objects to use spectra comparison functionality from the MSnbase package
+isfSpec <- new("Spectrum1", mz = isfSpec$mz, intensity = isfSpec$intensity, centroided = TRUE, rt = as.numeric(frt[apex]))
+apexSpec <- new("Spectrum1", mz = apexSpec$mz, intensity = apexSpec$intensity, centroided = TRUE, rt = as.numeric(frt[apex]))
+# mirror plot
+plot(isfSpec, apexSpec)
+# spectra comparison metrics
+dp <- compareSpectra(isfSpec,apexSpec, fun = "dotproduct") # dotproduct comparison
+pc <- compareSpectra(isfSpec,apexSpec, fun = "cor") # Pearson correlation
+ci <- compareSpectra(isfSpec,apexSpec, fun = "common") # common peaks between the two spectra
+print(paste("Spectra comparison metrics:", "Dot product:", round(dp,4), ",",
+            "Pearson correlation:", round(pc,4), ",",
+            "Common ions:", ci))
+```
