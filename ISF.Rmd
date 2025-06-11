@@ -70,10 +70,10 @@ getEIC <- function(mz, rtFilteredData, tol = 0.01){
   eic <- filterMz(rtFilteredData, mz = c(mz-tol, mz+tol))
   rt <- as.numeric(rtime(eic))
   int <- intensity(eic)
-  tmp <- lapply(int, function(x) which(length(x) > 1 | length(x) == 0))
-  idx <- which(tmp == 1)
+  tmp <- lapply(int, function(x) which(length(x) > 1 | length(x) == 0)) # some features contain 2 intensity values?
+  idx <- which(tmp == 1) # map features with two intensity values
   idx <- as.numeric(idx)
-  int[idx] <- NA
+  int[idx] <- NA # replace features with two intensity values by NA
   int <- unlist(int)
   df <- data.frame(rt =rt, intensity = int)
   return(df)
