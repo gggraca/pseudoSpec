@@ -22,7 +22,7 @@ getISF <- function(rawData,
                    itol = 10000, 
                    cthr = 0.95){
   
-  # Filter MS1 spectra. This is important particularly when the data has more than one type of scans, which is the case.
+  # Filter MS1 spectra. This is important particularly when the data has more than one type of scans
   msFilteredData <- filterMsLevel(rawData, msLevel = 1)
   
   # Read the retention times of the filtered MS1 scans.
