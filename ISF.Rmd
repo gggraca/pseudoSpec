@@ -16,8 +16,9 @@ This document summarises an approach to obtaining the in-source fragment (isf) s
 The data used for illustrative purposes was published with the MetaboAnnotatoR paper, and is a truncated Lipid Positive dataset from the MESA Phase 2 cohort (AIF data). 
 ```{r packages_and_data, warning=FALSE, message=FALSE}
 library(MSnbase)
+library(mzR)
 library(ggplot2)
-rawData <- readMSData('Lipid_Positive_QC.mzML', mode='onDisk', centroided. = TRUE)
+rawData <- readMSData('C:/Users/ggomesda/OneDrive - Imperial College London/Documents/Lipid_Positive_QC.mzML', mode='onDisk', centroided. = TRUE)
 ```
 
 Filter MS1 spectra. This is important particularly when the data has more than one type of scans, which is the case.
@@ -90,7 +91,7 @@ for(i in 1:length(mzSelected)){
 df <- do.call(rbind,r)
 df <- rbind(data.frame(rt = frt, intensity = fint, mz = 585.2691),df)
 ggplot(df, aes(rt, intensity, col = factor(mz))) + geom_line() +
-  labs(title = "Overlap between 585.2691 m/z and co-eluting features", x = "Retention time (s)", y = "Intensity (a.u.)", fill = "m/z")
+  labs(title = "Overlap between 585.2691 m/z and co-eluting features", x = "Retention time (s)", y = "Intensity (a.u.)", col = "m/z")
 ```
 
 Obtain the in-source fragment pseudo-spectrum from the EICs of the features that best correlate with the EIC of the feature of interest (C > 0.95):
