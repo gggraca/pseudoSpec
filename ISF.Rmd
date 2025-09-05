@@ -13,13 +13,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This document summarises an approach to obtaining the in-source fragment (isf) spectrum for a feature of interest. The code uses MSnbase functionality, which increases the speed of the process compared with approaches using xcms for peak-picking (e.g. MetaboAnnotatoR and 'correlate' script from Matt Lewis). It also adds spectra comparison capability.
 
-The data used for illustrative purposes was published with the MetaboAnnotatoR paper, and is a truncated Lipid Positive dataset from the MESA Phase 2 cohort (AIF data). 
+The data used for illustrative purposes was published with the MetaboAnnotatoR paper, and is a truncated Lipid Positive dataset from the MESA Phase 2 cohort (AIF data).
+After loading the necessary packages, download the data file 'Lipid_Positive_QC.mzML' from [this location](https://github.com/gggraca/MetaboAnnotatoR/tree/master/inst/Data/) into the working directory.
+
 ```{r packages_and_data, warning=FALSE, message=FALSE}
 library(MSnbase)
-library(mzR)
 library(ggplot2)
-rawData <- readMSData('https://github.com/gggraca/MetaboAnnotatoR/tree/master/inst/Data/Lipid_Positive_QC.mzML',
-mode='onDisk', centroided. = TRUE)
+rawData <- readMSData("Lipid_Positive_QC.mzML", mode='onDisk', centroided. = TRUE)
 ```
 
 Filter MS1 spectra. This is important particularly when the data has more than one type of scans, which is the case.
