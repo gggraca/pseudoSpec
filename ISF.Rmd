@@ -18,7 +18,8 @@ The data used for illustrative purposes was published with the MetaboAnnotatoR p
 library(MSnbase)
 library(mzR)
 library(ggplot2)
-rawData <- readMSData('C:/Users/ggomesda/OneDrive - Imperial College London/Documents/Lipid_Positive_QC.mzML', mode='onDisk', centroided. = TRUE)
+rawData <- readMSData('https://github.com/gggraca/MetaboAnnotatoR/tree/master/inst/Data/Lipid_Positive_QC.mzML',
+mode='onDisk', centroided. = TRUE)
 ```
 
 Filter MS1 spectra. This is important particularly when the data has more than one type of scans, which is the case.
