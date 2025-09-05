@@ -371,7 +371,7 @@ the MESA Phase 2 cohort (AIF data).</p>
 <pre class="r"><code>library(MSnbase)
 library(mzR)
 library(ggplot2)
-rawData &lt;- readMSData(&#39;C:/Users/ggomesda/OneDrive - Imperial College London/Documents/Lipid_Positive_QC.mzML&#39;, mode=&#39;onDisk&#39;, centroided. = TRUE)</code></pre>
+rawData &lt;- readMSData(&#39;https://github.com/gggraca/MetaboAnnotatoR/tree/master/inst/Data/Lipid_Positive_QC.mzML&#39;, mode=&#39;onDisk&#39;, centroided. = TRUE)</code></pre>
 <p>Filter MS1 spectra. This is important particularly when the data has
 more than one type of scans, which is the case.</p>
 <pre class="r"><code>msFilteredData &lt;- filterMsLevel(rawData, msLevel = 1)</code></pre>
