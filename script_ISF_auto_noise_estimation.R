@@ -5,7 +5,7 @@ library(ggplot2)
 setwd("/Users/GG/Documents/")
 
 # read data
-rawData <- readMSData("Lipid_Positive_QC.mzML", mode='onDisk', centroided.=TRUE)
+rawData <- readMSData("Lipid_Positive_QC.mzML", mode="onDisk", centroided.=TRUE)
 
 # filter MS1 scans
 msFilteredData <- filterMsLevel(rawData, msLevel=1)
@@ -23,13 +23,14 @@ scans <- which(RTs >= 60 & RTs <= 90) # scans corresponding to the feature of in
 rtFilteredData <- msFilteredData[scans] # only scans at the RTs of interest
 spectraData <- spectra(rtFilteredData) # spectra for corresponding to the scans of interest
 
-feic <- filterMz(rtFilteredData, mz = c(585.2591, 585.2791)) # EIC object
+# generate EIC object for the feature of interest
+feic <- filterMz(rtFilteredData, mz = c(585.2591, 585.2791)) 
 
-fint <- as.numeric(intensity(feic)) # intensity for the EIC
-
+# separate intensity and RT of the EIC
+fint <- as.numeric(intensity(feic)) 
 frt <- rtime(feic)
-
-apex <- which.max(fint) # apex for the EIC
+# apex for the EIC
+apex <- which.max(fint) 
 
 plot(frt, fint, type="b", pch=19, xlab="Retention time (s)", 
      ylab="Intensity (a.u.)", main="585.2691 m/z, 72.8s")
@@ -76,10 +77,10 @@ c <- lapply(r, function(x) cor(fint, x[,2], use = "pairwise.complete.obs"))
 c <- unlist(c)
 
 # select features with the highest correlation coefficient
-isf <- mzSelected[which(c > 0.95)]
+mzISF <- mzSelected[which(c > 0.95)]
 
 # obtain the pseudo-in source fragment (ISF) spectrum
-idx <- sapply(isf, function(x) grep(x, apexSpec$mz))
+idx <- sapply(mzISF, function(x) grep(x, apexSpec$mz))
 isfSpec <- apexSpec[idx,]
 
 # Plot the overlap between EICs
@@ -96,6 +97,8 @@ p1 <- ggplot2::ggplot(df[!is.na(df$intensity),],
     ggplot2::labs(x="RT (s)", y = "Intensity (a.u.)", 
                   colour="fragments") +
     ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5))
+
+p1
 
 # function to plot MS pseudo-spectrum:
 plotPseudoMS <- function(spectrum){
