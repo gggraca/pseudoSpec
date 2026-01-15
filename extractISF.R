@@ -28,7 +28,7 @@
 #' are set to "TRUE".
 #'  
 extractISF <- function(dataPath, featureMz, featureRT, 
-						corThresh=0.8, RTtol=20, mztol=0.01, 
+						corThresh=0.8, RTtol=10, mztol=0.01, 
 						plotResults=TRUE, saveResults=TRUE){
 	# read data from the datapath
 	rawData <- readMSData("Lipid_Positive_QC.mzML", mode="onDisk", centroided.=TRUE)
