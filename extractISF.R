@@ -72,7 +72,7 @@ extractISF <- function(dataPath, featureMz, featureRT,
 	# Plot the overlap between EICs and ISF
 	if(plotResults){
 		# plot feature EIC and spectrum
-		pdf(file=paste("MS1_feature_",featureMz, "mz_", featureRT, "s", ".pdf", sep=""),
+		pdf(file=paste("MS1_feature_", featureMz, "mz_", featureRT, "s", ".pdf", sep=""),
 			width=10, height=10)
 		par(mfrow=c(2,1))
 		plot(featureEIC, type="b", pch=19, xlab="Retention time (s)", 
@@ -99,7 +99,7 @@ extractISF <- function(dataPath, featureMz, featureRT,
 			ggtitle(paste("EICs correlated at", "C >", corThresh, "with feature", 
 						  featureMz, "m/z,", featureRT, "s"))
 		# plot ISF
-		df2 <- as.data.frame(isfSpec)
+		df2 <- data.frame(isfSpec)
 		p2 <- ggplot2::ggplot(df2,
 							  ggplot2::aes(x=mz, y=intensity, label=round(mz, 3))) +
 			ggplot2::geom_segment(ggplot2::aes(xend=mz, yend=0), lwd=0.5) +
