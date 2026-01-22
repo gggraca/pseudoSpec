@@ -31,22 +31,19 @@ extractISF <- function(dataPath, featureMz, featureRT,
 						corThresh=0.8, RTtol=10, mztol=0.01, 
 						plotResults=TRUE, saveResults=TRUE){
 	# read data from the datapath
-	rawData <- readMSData("Lipid_Positive_QC.mzML", mode="onDisk", centroided.=TRUE)
-	msFilteredData <- filterMsLevel(rawData, msLevel=1)
+	rawData <- MSnbase::readMSData(dataPath, mode="onDisk", centroided.=TRUE)
+	msFilteredData <- MSnbase::filterMsLevel(rawData, msLevel=1)
 	
 	# read RTs of all the scans
-	RTs <- rtime(msFilteredData)
+	RTs <- MSnbase::rtime(msFilteredData)
 	scans <- which(RTs >= featureRT-RTtol & RTs <= featureRT+RTtol) # scans corresponding to the feature of interest
 	rtFilteredData <- msFilteredData[scans] # only scans at the RTs of interest
 	spectraData <- spectra(rtFilteredData) # spectra for corresponding to the scans of interest
 	
 	# generate EIC object for the feature of interest
-	featureEIC <- filterMz(rtFilteredData, mz=c(featureMz-mztol, featureMz+mztol))
-	# separate intensity and RT of the EIC
-	fint <- as.numeric(intensity(featureEIC)) 
-	frt <- rtime(featureEIC)
+	featureEIC <- getEIC(featureMz, rtFilteredData)
 	# apex (index) of the EIC
-	apex <- which.max(fint)
+	apex <- which.max(featureEIC[,2])
 	# apex spectrum to get ISFs from:
 	apexSpec <- data.frame(mz=mz(spectraData[[apex]]), 
 						   intensity=intensity(spectraData[[apex]]))
@@ -61,7 +58,7 @@ extractISF <- function(dataPath, featureMz, featureRT,
 	r <- lapply(mzSelected, function(x) getEIC(x, rtFilteredData, tol=mztol))
 	
 	# Correlate the feature EIC with the other features EICs
-	c <- lapply(r, function(x) cor(fint, x[,2], use = "pairwise.complete.obs"))
+	c <- lapply(r, function(x) cor(featureEIC[,2], x[,2], use = "pairwise.complete.obs"))
 	c <- unlist(c)
 	
 	# select features with the highest correlation coefficient
@@ -78,13 +75,13 @@ extractISF <- function(dataPath, featureMz, featureRT,
 		pdf(file=paste("MS1_feature_",featureMz, "mz_", featureRT, "s", ".pdf", sep=""),
 			width=10, height=10)
 		par(mfrow=c(2,1))
-		plot(frt, fint, type="b", pch=19, xlab="Retention time (s)", 
+		plot(featureEIC, type="b", pch=19, xlab="Retention time (s)", 
 			 ylab="Intensity (a.u.)", 
 			 main=paste("EIC of feature", featureMz, "m/z,", featureRT, "s"))
-		abline(v = frt[apex], col = "red", lty = 3)
+		abline(v = featureEIC[apex,1], col = "red", lty = 3)
 		# plot spectrum with RT threshold
 		plot(apexSpec[,1],apexSpec[,2], type="h", xlab="m/z", ylab="Intensity", 
-			 main=paste("MS1 Spectrum at", frt[apex], "s"))
+			 main=paste("MS1 Spectrum at", featureEIC[apex,1], "s"))
 		abline(h = thres, col = "red", lty = 3)
 		dev.off()
 		# plot correlated EICs
@@ -137,6 +134,7 @@ extractISF <- function(dataPath, featureMz, featureRT,
 # function to get all EICs for the selected peaks from the apex spectrum
 # mz tolerance set to 0.01
 getEIC <- function(mz, rtFilteredData, tol=0.01){
+	# generate EIC object for the feature of interest
 	eic <- filterMz(rtFilteredData, mz=c(mz-tol, mz+tol))
 	rt <- as.numeric(rtime(eic))
 	int <- intensity(eic)
