@@ -20,7 +20,7 @@
 #' @param saveResults The resulting ISF spectrum (m/z and intensity) 
 #' and correlation coefficient values are saved to .csv. The default is TRUE.
 #' 
-#' @importFrom MSnbase readMSdata
+#' @importFrom MSnbase readMSdata spectra
 #' @importFrom gridExtra grid.arrange
 #' 
 #' @return Stores the extracted ISF spectrum to the workspace environment,
@@ -38,7 +38,7 @@ extractISF <- function(dataPath, featureMz, featureRT,
 	RTs <- MSnbase::rtime(msFilteredData)
 	scans <- which(RTs >= featureRT-RTtol & RTs <= featureRT+RTtol) # scans corresponding to the feature of interest
 	rtFilteredData <- msFilteredData[scans] # only scans at the RTs of interest
-	spectraData <- spectra(rtFilteredData) # spectra for corresponding to the scans of interest
+	spectraData <- MSnbase::spectra(rtFilteredData) # spectra for corresponding to the scans of interest
 	
 	# generate EIC object for the feature of interest
 	featureEIC <- getEIC(featureMz, rtFilteredData)
@@ -96,7 +96,7 @@ extractISF <- function(dataPath, featureMz, featureRT,
 			ggplot2::labs(x="RT (s)", y = "Intensity (a.u.)", 
 						  colour="fragments") +
 			ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5)) +
-			ggtitle(paste("EICs correlated at", "C >", corThresh, "with feature", 
+			ggplot2::ggtitle(paste("EICs correlated at", "C >", corThresh, "with feature", 
 						  featureMz, "m/z,", featureRT, "s"))
 		# plot ISF
 		df2 <- data.frame(isfSpec)
@@ -111,7 +111,7 @@ extractISF <- function(dataPath, featureMz, featureRT,
 			ggplot2::xlim(min(df2[,1])-50, max(df2[,1])+50) +
 			ggplot2::labs(x = "m/z", y = "Intensity (a.u.)") +
 			ggplot2::scale_color_gradientn(colors=rainbow(nrow(isfSpec))) +
-			ggtitle(paste("Pseudo-MS/MS spectrum of feature", featureMz, 
+			ggplot2::ggtitle(paste("Pseudo-MS/MS spectrum of feature", featureMz, 
 						  "m/z,", featureRT, "s"))
 		pdf(file=paste("LCMS_in-source_",featureMz, "mz_", featureRT, "s", ".pdf", sep=""),
 			width=10, height=10)
