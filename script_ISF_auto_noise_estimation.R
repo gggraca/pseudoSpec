@@ -87,7 +87,7 @@ isfSpec <- apexSpec[idx,]
 selEICs <- r[which(c > 0.95)]
 
 for(i in seq_along(selEICs)){
-    selEICs[[i]][,"mz"] <- round(isf[i], 4)
+    selEICs[[i]][,"mz"] <- round(isfSpec[i], 4)
 }
 
 df <- do.call(rbind,selEICs)
@@ -117,3 +117,4 @@ plotPseudoMS <- function(spectrum){
 }
 
 plotPseudoMS(isfSpec)
+# put the correlation coefficient in the table
