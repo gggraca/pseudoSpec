@@ -65,7 +65,7 @@ extractISF <- function(dataPath, featureMz, featureRT,
 	mzISF <- mzSelected[which(c > corThresh)]
 	
 	# obtain the pseudo-in source fragment (ISF) spectrum
-	idx <- sapply(mzISF, function(x) grep(x, apexSpec$mz))
+	idx <- vapply(mzISF, function(x) grep(x, apexSpec$mz), FUN.VALUE=numeric(1))
 	isfSpec <- apexSpec[idx,]
 	isfSpec$correlation <- c[which(c > corThresh)] # add correlation coefficient
 	
