@@ -1,8 +1,8 @@
-# pseudoSpec
+# Extract in-source spectra from an LC-MS chromatograms 
 
 Code to obtain in-source fragmention pseudo-MS mass spectra.
 
-## Demo script to obtain a in-source spectra from an LC-MS chromatogram 
+### Demo script to obtain a in-source spectra from an LC-MS chromatogram 
 
 The demo example presented below makes use of the function 'extractISF.R', and also depends on the R packages 'MSnbase', 'ggplot2' and 'gridExtra'.
 
