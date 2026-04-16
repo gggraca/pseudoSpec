@@ -37,6 +37,6 @@ extractISF(dataPath="Lipid_Positive_QC.mzML", featureMz=585.2691,
 By default an image file containing the correlated ions EICs and ISF pseudo-spectrum will be saved in the working directory:  
 ![Result](pseudoMS.png)  
 Optionally, the feature EIC and apex spectrum can also be saved into the working directory as .pdf, as well as the The resulting ISF 
-spectrum (m/z and intensity) and correlation coefficient values as .csv, if plotResults and  saveResults are set to TRUE, respectively:  
+spectrum (m/z and intensity) and correlation coefficient values as .csv, if 'plotResults' and 'saveResults' options are set to TRUE, respectively:  
 ![feature_selection](feature_selection.png)
 
