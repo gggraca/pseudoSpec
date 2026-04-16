@@ -1,4 +1,4 @@
-# pseudoSpec
+# Extract in-source spectra from an LC-MS chromatograms 
 
 Code to obtain in-source fragmention pseudo-MS mass spectra.
 
